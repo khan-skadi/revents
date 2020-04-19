@@ -3,11 +3,24 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './app/layout/App.jsx';
 import * as serviceWorker from './serviceWorker';
+import { BrowserRouter } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import { configureStore } from './app/store/configureStore';
+
+const store = configureStore();
+console.log(store.getState());
 
 const rootEl = document.getElementById('root');
 
 let render = () => {
-  ReactDOM.render(<App />, rootEl);
+  ReactDOM.render(
+    <Provider store={store}>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </Provider>,
+    rootEl
+  );
 };
 
 // Hook into webpack API. Use hot module replacement
