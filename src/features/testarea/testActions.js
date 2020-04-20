@@ -1,5 +1,5 @@
 import { INCREMENT_COUNTER, DECREMENT_COUNTER } from './testConstants.js';
-import { asyncActionStart, asyncActionFinish } from '../async/asyncActions.js';
+import { asyncActionFinish } from '../async/asyncActions.js';
 import { ASYNC_ACTION_START } from '../async/asyncConstants.js';
 
 // We create Action Creators which return Actions. Actions payload has to be object. It cant be function
