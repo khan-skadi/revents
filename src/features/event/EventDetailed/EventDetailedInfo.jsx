@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Segment, Grid, Icon, Button } from 'semantic-ui-react';
+import EventDetailedMap from './EventDetailedMap';
 
 const EventDetailedInfo = ({ event }) => {
+  const [isMapOpen, setIsMapOpen] = useState(false);
+
   return (
     <Segment.Group>
       <Segment attached="top">
@@ -37,6 +40,10 @@ const EventDetailedInfo = ({ event }) => {
           </Grid.Column>
         </Grid>
       </Segment>
+      <EventDetailedMap
+        lat={event.venue.latlng.lat}
+        lng={event.venue.latlng.lng}
+      />
     </Segment.Group>
   );
 };
