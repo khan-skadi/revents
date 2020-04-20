@@ -3,9 +3,11 @@ import { connect } from 'react-redux';
 import { createEvent, updateEvent, deleteEvent } from '../eventActions.js';
 import { Grid } from 'semantic-ui-react';
 import EventList from '../EventList/EventList';
+import LoadingComponent from '../../../app/layout/LoadingComponent.jsx';
 
 const mapStateToProps = state => ({
-  events: state.events
+  events: state.events,
+  loading: state.async.loading
 });
 
 const actions = {
@@ -27,8 +29,9 @@ class EventDashboard extends Component {
   // };
 
   render() {
-    const { events } = this.props;
+    const { events, loading } = this.props;
 
+    if (loading) return <LoadingComponent />;
     return (
       <Grid>
         <Grid.Column width={10}>
