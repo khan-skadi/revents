@@ -19,6 +19,7 @@ const DateInput = ({
         onChange={input.onChange}
         onBlur={input.onBlur}
         onChangeRaw={e => e.preventDefault()}
+        dateFormat="MMMM d, yyyy h:mm aa"
       />
 
       {touched && error && (
