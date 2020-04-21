@@ -9,12 +9,12 @@ import { addYears } from 'date-fns';
 
 class Basic extends Component {
   render() {
-    const { pristine, submitting } = this.props;
+    const { pristine, submitting, handleSubmit, updateProfile } = this.props;
 
     return (
       <Segment>
         <Header dividing size="large" content="Basics" />
-        <Form>
+        <Form onSubmit={handleSubmit(updateProfile)}>
           <Field
             width={8}
             name="displayName"
@@ -74,6 +74,8 @@ class Basic extends Component {
   }
 }
 
-export default reduxForm({ form: 'userProfile', enableReinitialize: true })(
-  Basic
-);
+export default reduxForm({
+  form: 'userProfile',
+  enableReinitialize: true,
+  destroyOnUnmount: false
+})(Basic);

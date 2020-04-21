@@ -6,6 +6,7 @@ export const updateProfile = user => async (
   { getFirebase }
 ) => {
   const firebase = getFirebase();
+  const { isLoaded, isEmpty, ...updatedUser } = user;
 
   try {
     await firebase.updateProfile(user);
