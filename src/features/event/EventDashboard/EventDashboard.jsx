@@ -1,15 +1,15 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { firestoreConnect } from 'react-redux-firebase';
+import { firestoreConnect, isLoaded } from 'react-redux-firebase';
 import { createEvent, updateEvent } from '../eventActions.js';
 import { Grid } from 'semantic-ui-react';
+
 import EventList from '../EventList/EventList';
 import LoadingComponent from '../../../app/layout/LoadingComponent.jsx';
 import EventActivity from '../EventActivity/EventActivity.jsx';
 
 const mapStateToProps = state => ({
-  events: state.firestore.ordered.events,
-  loading: state.async.loading
+  events: state.firestore.ordered.events
 });
 
 const actions = {
@@ -30,9 +30,9 @@ class EventDashboard extends Component {
   // };
 
   render() {
-    const { events, loading } = this.props;
+    const { events } = this.props;
 
-    if (loading) return <LoadingComponent />;
+    if (!isLoaded(events)) return <LoadingComponent />;
     return (
       <Grid>
         <Grid.Column width={10}>

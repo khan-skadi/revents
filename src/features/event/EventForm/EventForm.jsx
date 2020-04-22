@@ -11,7 +11,6 @@ import {
 } from 'revalidate';
 import { geocodeByAddress, getLatLng } from 'react-places-autocomplete';
 import { createEvent, updateEvent, cancelToggle } from '../eventActions.js';
-import { toastr } from 'react-redux-toastr';
 import { Segment, Form, Button, Grid, Header } from 'semantic-ui-react';
 
 import TextInput from '../../../app/common/form/TextInput.jsx';
