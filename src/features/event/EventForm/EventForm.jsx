@@ -90,6 +90,11 @@ class EventForm extends Component {
     // }
   }
 
+  async componentWillUnmount() {
+    const { firestore, match } = this.props;
+    await firestore.unsetListener(`events/${match.params.id}`);
+  }
+
   onFormSubmit = async values => {
     values.venueLatLng = this.state.venueLatLng;
     try {
