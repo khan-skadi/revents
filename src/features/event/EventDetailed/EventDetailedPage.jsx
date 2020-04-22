@@ -1,18 +1,27 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { withFirestore } from 'react-redux-firebase';
 import { Grid } from 'semantic-ui-react';
+import { toastr } from 'react-redux-toastr';
+
 import EventDetailedHeader from './EventDetailedHeader';
 import EventDetailedChat from './EventDetailedChat';
 import EventDetailedInfo from './EventDetailedInfo';
 import EventDetailedSidebar from './EventDetailedSidebar';
+import { objectToArray } from '../../../app/common/util/helpers';
 
 const mapStateToProps = (state, ownProps) => {
   const eventId = ownProps.match.params.id;
 
   let event = {};
 
-  if (eventId && state.events.length > 0) {
-    event = state.events.filter(event => event.id === eventId)[0];
+  if (
+    state.firestore.ordered.events &&
+    state.firestore.ordered.events.length > 0
+  ) {
+    event =
+      state.firestore.ordered.events.filter(event => event.id === eventId)[0] ||
+      {};
   }
 
   return {
@@ -20,19 +29,35 @@ const mapStateToProps = (state, ownProps) => {
   };
 };
 
-const EventDetailedPage = ({ event }) => {
-  return (
-    <Grid>
-      <Grid.Column width={10}>
-        <EventDetailedHeader event={event} />
-        <EventDetailedInfo event={event} />
-        <EventDetailedChat />
-      </Grid.Column>
-      <Grid.Column width={6}>
-        <EventDetailedSidebar attendees={event.attendees} />
-      </Grid.Column>
-    </Grid>
-  );
-};
+class EventDetailedPage extends Component {
+  async componentDidMount() {
+    const { firestore, match, history } = this.props;
+    let event = await firestore.get(`events/${match.params.id}`);
 
-export default connect(mapStateToProps)(EventDetailedPage);
+    if (!event.exists) {
+      history.push('/events'); // Or you can create a 404 page and push the user there.
+      toastr.error('Oops', 'Event not found');
+    }
+  }
+
+  render() {
+    const { event } = this.props;
+    const attendees =
+      event && event.attendees && objectToArray(event.attendees);
+
+    return (
+      <Grid>
+        <Grid.Column width={10}>
+          <EventDetailedHeader event={event} />
+          <EventDetailedInfo event={event} />
+          <EventDetailedChat />
+        </Grid.Column>
+        <Grid.Column width={6}>
+          <EventDetailedSidebar attendees={attendees} />
+        </Grid.Column>
+      </Grid>
+    );
+  }
+}
+
+export default withFirestore(connect(mapStateToProps)(EventDetailedPage));

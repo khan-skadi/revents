@@ -15,7 +15,7 @@ export const updateProfile = user => async (
   const { isLoaded, isEmpty, ...updatedUser } = user;
 
   try {
-    await firebase.updateProfile(user);
+    await firebase.updateProfile(updatedUser);
     toastr.success('Success', 'Your profile has been updated');
   } catch (error) {
     console.log(error);
@@ -70,5 +70,43 @@ export const uploadProfileImage = (file, fileName) => async (
   } catch (error) {
     console.log(error);
     dispatch(asyncActionError());
+  }
+};
+
+export const deletePhoto = photo => async (
+  dispatch,
+  getState,
+  { getFirebase, getFirestore }
+) => {
+  const firebase = getFirebase();
+  const firestore = getFirestore();
+  const user = firebase.auth().currentUser;
+
+  try {
+    await firebase.deleteFile(`${user.uid}/user_images/${photo.name}`);
+    await firestore.delete({
+      collection: 'users',
+      doc: user.uid,
+      subcolections: [{ collection: 'photos', doc: photo.id }]
+    });
+  } catch (error) {
+    console.log(error);
+    throw new Error('Problem deleting the photo');
+  }
+};
+
+export const setMainPhoto = photo => async (
+  dispatch,
+  getState,
+  { getFirebase }
+) => {
+  const firebase = getFirebase();
+
+  try {
+    return await firebase.updateProfile({
+      photoURL: photo.url
+    });
+  } catch (error) {
+    console.log(error);
   }
 };

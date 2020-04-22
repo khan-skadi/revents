@@ -2,7 +2,11 @@ import React, { useState, useEffect, Fragment } from 'react';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { firestoreConnect } from 'react-redux-firebase';
-import { uploadProfileImage } from '../../userActions.js';
+import {
+  uploadProfileImage,
+  deletePhoto,
+  setMainPhoto
+} from '../../userActions.js';
 import { toastr } from 'react-redux-toastr';
 import {
   Image,
@@ -31,16 +35,27 @@ const query = ({ auth }) => {
 const mapStateToProps = state => ({
   auth: state.firebase.auth,
   profile: state.firebase.profile,
-  photos: state.firestore.ordered.photos
+  photos: state.firestore.ordered.photos,
+  loading: state.async.loading
 });
 
 const actions = {
-  uploadProfileImage
+  uploadProfileImage,
+  deletePhoto,
+  setMainPhoto
 };
 
-const PhotosPage = ({ uploadProfileImage, photos, profile }) => {
+const PhotosPage = ({
+  uploadProfileImage,
+  photos,
+  profile,
+  deletePhoto,
+  setMainPhoto,
+  loading
+}) => {
   const [files, setFiles] = useState([]);
   const [image, setImage] = useState(null);
+  const [cropResult, setCropResult] = useState('');
 
   useEffect(() => {
     return () => {
@@ -62,6 +77,23 @@ const PhotosPage = ({ uploadProfileImage, photos, profile }) => {
   const handleCancelCrop = () => {
     setFiles([]);
     setImage(null);
+    setCropResult('');
+  };
+
+  const handleDeletePhoto = async photo => {
+    try {
+      await deletePhoto(photo);
+    } catch (err) {
+      toastr.error('Oops', err.message);
+    }
+  };
+
+  const handleSetMainPhoto = async photo => {
+    try {
+      await setMainPhoto(photo);
+    } catch (err) {
+      toastr.error('Oops', err.message);
+    }
   };
 
   return (
@@ -77,7 +109,11 @@ const PhotosPage = ({ uploadProfileImage, photos, profile }) => {
         <Grid.Column width={4}>
           <Header sub color="teal" content="Step 2 - Resize image" />
           {files.length > 0 && (
-            <CropperInput setImage={setImage} imagePreview={files[0].preview} />
+            <CropperInput
+              setImage={setImage}
+              imagePreview={files[0].preview}
+              setCropResult={setCropResult}
+            />
           )}
         </Grid.Column>
         <Grid.Column width={1} />
@@ -95,12 +131,14 @@ const PhotosPage = ({ uploadProfileImage, photos, profile }) => {
               />
               <Button.Group>
                 <Button
+                  loading={loading}
                   onClick={handleUploadImage}
                   style={{ width: '100px' }}
                   positive
                   icon="check"
                 />
                 <Button
+                  disabled={loading}
                   onClick={handleCancelCrop}
                   style={{ width: '100px' }}
                   icon="close"
@@ -112,7 +150,12 @@ const PhotosPage = ({ uploadProfileImage, photos, profile }) => {
       </Grid>
 
       <Divider />
-      <UserPhotos photos={photos} profile={profile} />
+      <UserPhotos
+        photos={photos}
+        profile={profile}
+        deletePhoto={handleDeletePhoto}
+        setMainPhoto={handleSetMainPhoto}
+      />
     </Segment>
   );
 };
