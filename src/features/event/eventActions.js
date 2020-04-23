@@ -124,6 +124,31 @@ export const getEventsForDashboard = lastEvent => async (
   }
 };
 
+export const addEventComment = (eventId, values) => async (
+  dispatch,
+  getState,
+  { getFirebase }
+) => {
+  const firebase = getFirebase(); // now we are using the react-redux-firebase tools for the realtime database
+  const profile = getState().firebase.profile;
+  const user = firebase.auth().currentUser;
+
+  let newComment = {
+    displayName: profile.displayName,
+    photoURL: profile.photoURL || '/assets/user.png',
+    uid: user.uid,
+    text: values.comment,
+    date: Date.now()
+  };
+
+  try {
+    await firebase.push(`event_chat/${eventId}`, newComment);
+  } catch (error) {
+    console.log(error);
+    toastr.error('Oops', 'Problem adding comment');
+  }
+};
+
 // export const loadEvents = () => {
 //   return async dispatch => {
 //     try {
