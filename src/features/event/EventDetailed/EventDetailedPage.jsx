@@ -2,7 +2,10 @@ import React, { Component } from 'react';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { withFirestore, firebaseConnect, isEmpty } from 'react-redux-firebase';
-import { objectToArray } from '../../../app/common/util/helpers';
+import {
+  objectToArray,
+  createDataTree
+} from '../../../app/common/util/helpers';
 import { goingToEvent, cancelGoingToEvent } from '../../user/userActions.js';
 import { addEventComment } from '../eventActions.js';
 import { Grid } from 'semantic-ui-react';
@@ -67,10 +70,12 @@ class EventDetailedPage extends Component {
       addEventComment,
       eventChat
     } = this.props;
+
     const attendees =
       event && event.attendees && objectToArray(event.attendees);
     const isHost = event.hostUid === auth.uid;
     const isGoing = attendees && attendees.some(a => a.id === auth.uid); // includes() is for primitive array(list of strings or numbers). some() is for an object that has a specific property you need.
+    const chatTree = !isEmpty(eventChat) && createDataTree(eventChat);
 
     return (
       <Grid>
@@ -86,7 +91,7 @@ class EventDetailedPage extends Component {
           <EventDetailedChat
             addEventComment={addEventComment}
             eventId={event.id}
-            eventChat={eventChat}
+            eventChat={chatTree}
           />
         </Grid.Column>
         <Grid.Column width={6}>
