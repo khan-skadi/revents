@@ -27,7 +27,6 @@ class EventDashboard extends Component {
 
   async componentDidMount() {
     let next = await this.props.getEventsForDashboard(); // Because im returning a query snapshot from this function i initialize it in a variable 'next'
-    console.log(next);
 
     if (next && next.docs && next.docs.length > 1) {
       this.setState({
