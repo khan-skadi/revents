@@ -8,15 +8,7 @@ import {
   setMainPhoto
 } from '../../userActions.js';
 import { toastr } from 'react-redux-toastr';
-import {
-  Image,
-  Segment,
-  Header,
-  Divider,
-  Grid,
-  Button,
-  Card
-} from 'semantic-ui-react';
+import { Segment, Header, Divider, Grid, Button } from 'semantic-ui-react';
 import DropzoneInput from './DropzoneInput';
 import CropperInput from './CropperInput';
 import UserPhotos from './UserPhotos.jsx';
@@ -56,6 +48,7 @@ const PhotosPage = ({
   const [files, setFiles] = useState([]);
   const [image, setImage] = useState(null);
   const [cropResult, setCropResult] = useState('');
+  console.log(cropResult);
 
   useEffect(() => {
     return () => {
