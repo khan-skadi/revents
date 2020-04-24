@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, createRef } from 'react';
 import { connect } from 'react-redux';
 import { firestoreConnect } from 'react-redux-firebase';
 import { getEventsForDashboard } from '../eventActions.js';
@@ -8,9 +8,18 @@ import EventList from '../EventList/EventList';
 import LoadingComponent from '../../../app/layout/LoadingComponent.jsx';
 import EventActivity from '../EventActivity/EventActivity.jsx';
 
+const query = [
+  {
+    collection: 'activity',
+    orderBy: ['timestamp', 'desc'],
+    limit: 5
+  }
+];
+
 const mapStateToProps = state => ({
   events: state.events,
-  loading: state.async.loading
+  loading: state.async.loading,
+  activities: state.firestore.ordered.activity
 });
 
 const actions = {
@@ -18,6 +27,8 @@ const actions = {
 };
 
 class EventDashboard extends Component {
+  contextRef = createRef();
+
   // Store events in local state as we get them, so new events gotten from More button will show below the previous events.
   state = {
     moreEvents: false,
@@ -68,22 +79,24 @@ class EventDashboard extends Component {
   // };
 
   render() {
-    const { loading } = this.props;
+    const { loading, activities } = this.props;
     const { moreEvents, loadedEvents } = this.state;
 
     if (this.state.loadingInitial) return <LoadingComponent />;
     return (
       <Grid>
         <Grid.Column width={10}>
-          <EventList
-            events={loadedEvents}
-            loading={loading}
-            moreEvents={moreEvents}
-            getNextEvents={this.getNextEvents}
-          />
+          <div ref={this.contextRef}>
+            <EventList
+              events={loadedEvents}
+              loading={loading}
+              moreEvents={moreEvents}
+              getNextEvents={this.getNextEvents}
+            />
+          </div>
         </Grid.Column>
         <Grid.Column width={6}>
-          <EventActivity />
+          <EventActivity activities={activities} contextRef={this.contextRef} />
         </Grid.Column>
         <Grid.Column width={10}>
           <Loader active={loading} />
@@ -93,7 +106,12 @@ class EventDashboard extends Component {
   }
 }
 
+// export default connect(
+//   mapStateToProps,
+//   actions
+// )(firestoreConnect(query)(EventDashboard));
+
 export default connect(
   mapStateToProps,
   actions
-)(firestoreConnect([{ collection: 'events' }])(EventDashboard));
+)(firestoreConnect(query)(EventDashboard));
