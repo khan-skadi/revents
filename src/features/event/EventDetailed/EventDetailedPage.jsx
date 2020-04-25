@@ -14,6 +14,7 @@ import EventDetailedHeader from './EventDetailedHeader';
 import EventDetailedChat from './EventDetailedChat';
 import EventDetailedInfo from './EventDetailedInfo';
 import EventDetailedSidebar from './EventDetailedSidebar';
+import { openModal } from '../../modals/modalActions.js';
 
 const mapStateToProps = (state, ownProps) => {
   const eventId = ownProps.match.params.id;
@@ -31,6 +32,7 @@ const mapStateToProps = (state, ownProps) => {
 
   return {
     event,
+    loading: state.async.loading,
     auth: state.firebase.auth,
     eventChat:
       !isEmpty(state.firebase.data.event_chat) &&
@@ -41,7 +43,8 @@ const mapStateToProps = (state, ownProps) => {
 const actions = {
   goingToEvent,
   cancelGoingToEvent,
-  addEventComment
+  addEventComment,
+  openModal
 };
 
 class EventDetailedPage extends Component {
@@ -68,7 +71,8 @@ class EventDetailedPage extends Component {
       goingToEvent,
       cancelGoingToEvent,
       addEventComment,
-      eventChat
+      eventChat,
+      loading
     } = this.props;
 
     const attendees =
@@ -76,23 +80,29 @@ class EventDetailedPage extends Component {
     const isHost = event.hostUid === auth.uid;
     const isGoing = attendees && attendees.some(a => a.id === auth.uid); // includes() is for primitive array(list of strings or numbers). some() is for an object that has a specific property you need.
     const chatTree = !isEmpty(eventChat) && createDataTree(eventChat);
+    const authenticated = auth.isLoaded && !auth.isEmpty;
 
     return (
       <Grid>
         <Grid.Column width={10}>
           <EventDetailedHeader
             event={event}
+            loading={loading}
             isGoing={isGoing}
             isHost={isHost}
             goingToEvent={goingToEvent}
             cancelGoingToEvent={cancelGoingToEvent}
+            authenticated={authenticated}
+            openModal={openModal}
           />
           <EventDetailedInfo event={event} />
-          <EventDetailedChat
-            addEventComment={addEventComment}
-            eventId={event.id}
-            eventChat={chatTree}
-          />
+          {authenticated && (
+            <EventDetailedChat
+              addEventComment={addEventComment}
+              eventId={event.id}
+              eventChat={chatTree}
+            />
+          )}
         </Grid.Column>
         <Grid.Column width={6}>
           <EventDetailedSidebar attendees={attendees} />

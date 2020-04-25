@@ -35,7 +35,8 @@ const mapStateToProps = (state, ownProps) => {
 
   return {
     initialValues: event,
-    event
+    event,
+    loading: state.async.loading
   };
 };
 
@@ -102,7 +103,7 @@ class EventForm extends Component {
           // Check if state object is empty inside.
           values.venueLatLng = this.props.event.venueLatLng;
         }
-        this.props.updateEvent(values);
+        await this.props.updateEvent(values);
         this.props.history.push(`/events/${this.props.initialValues.id}`);
       } else {
         let createdEvent = await this.props.createEvent(values); // values from our form
@@ -153,7 +154,8 @@ class EventForm extends Component {
       submitting,
       pristine,
       event,
-      cancelToggle
+      cancelToggle,
+      loading
     } = this.props;
 
     return (
@@ -222,6 +224,7 @@ class EventForm extends Component {
 
               <Button
                 disabled={invalid || submitting || pristine}
+                loading={loading}
                 positive
                 type="submit"
               >
@@ -234,6 +237,7 @@ class EventForm extends Component {
                     : () => history.push('/events')
                 }
                 type="button"
+                disabled={loading}
               >
                 Cancel
               </Button>

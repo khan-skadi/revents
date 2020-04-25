@@ -102,12 +102,14 @@ export const deletePhoto = photo => async (
   }
 };
 
+// Batch update when changing main photo
 export const setMainPhoto = photo => async (dispatch, getState) => {
   const firestore = firebase.firestore();
   const user = firebase.auth().currentUser;
   const today = new Date();
   let userDocRef = firestore.collection('users').doc(user.uid);
   let eventAttendeeRef = firestore.collection('event_attendee');
+
   try {
     dispatch(asyncActionStart());
     let batch = firestore.batch();
@@ -148,38 +150,48 @@ export const setMainPhoto = photo => async (dispatch, getState) => {
   }
 };
 
-export const goingToEvent = event => async (
-  dispatch,
-  getState,
-  { getFirebase, getFirestore }
-) => {
+export const goingToEvent = event => async (dispatch, getState) => {
+  dispatch(asyncActionStart());
   // Get instances of firebase and firestore
-  const firebase = getFirebase();
-  const firestore = getFirestore();
-
+  const firestore = firebase.firestore();
   const user = firebase.auth().currentUser;
   const profile = getState().firebase.profile;
   const attendee = {
     going: true,
-    joinDate: firestore.FieldValue.serverTimestamp(),
+    // joinDate: firestore.FieldValue.serverTimestamp(),
+    // joinDate: new Date(),
+    joinDate: Date.now(),
     photoURL: profile.photoURL || '/assets/user.png',
-    displayName: profile.displayName,
+    displayName: user.displayName,
     host: false
   };
 
   try {
-    await firestore.update(`events/${event.id}`, {
-      [`attendees.${user.uid}`]: attendee // Add a new object into the object's map
+    let eventDocRef = firestore.collection('events').doc(event.id);
+    let eventAttendeeDocRef = firestore
+      .collection('event_attendee')
+      .doc(`${event.id}_${user.uid}`);
+
+    await firestore.runTransaction(async transaction => {
+      await transaction.get(eventDocRef);
+
+      await transaction.update(eventDocRef, {
+        [`attendees.${user.uid}`]: attendee
+      });
+
+      await transaction.set(eventAttendeeDocRef, {
+        eventId: event.id,
+        userUid: user.uid,
+        eventDate: event.date,
+        host: false
+      });
     });
-    await firestore.set(`event_attendee/${event.id}_${user.uid}`, {
-      eventId: event.id,
-      userUid: user.uid,
-      eventDate: event.date,
-      host: false
-    }); // update the event attendee collection
+
+    dispatch(asyncActionFinish());
     toastr.success('Success', 'You have signed up to the event !');
   } catch (error) {
     console.log(error);
+    dispatch(asyncActionError());
     toastr.error('Oops', 'Problem signing up to the event');
   }
 };

@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { Route, Switch, withRouter } from 'react-router-dom';
+import { UserIsAuthenticated } from '../../features/auth/authWrapper.jsx';
 import { Container } from 'semantic-ui-react';
 import EventDashboard from '../../features/event/EventDashboard/EventDashboard.jsx';
 import NavBar from '../../features/nav/NavBar/NavBar.jsx';
@@ -27,12 +28,21 @@ class App extends Component {
                 <Switch key={this.props.location.key}>
                   <Route exact path="/events" component={EventDashboard} />
                   <Route path="/events/:id" component={EventDetailedPage} />
-                  <Route path="/people" component={PeopleDashboard} />
-                  <Route path="/profile/:id" component={UserDetailedPage} />
-                  <Route path="/settings" component={SettingsDashboard} />
+                  <Route
+                    path="/people"
+                    component={UserIsAuthenticated(PeopleDashboard)}
+                  />
+                  <Route
+                    path="/profile/:id"
+                    component={UserIsAuthenticated(UserDetailedPage)}
+                  />
+                  <Route
+                    path="/settings"
+                    component={UserIsAuthenticated(SettingsDashboard)}
+                  />
                   <Route
                     path={['/createEvent', '/manage/:id']}
-                    component={EventForm}
+                    component={UserIsAuthenticated(EventForm)}
                   />
                   <Route path="/test" component={TestComponent} />
                 </Switch>
