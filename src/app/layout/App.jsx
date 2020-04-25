@@ -12,6 +12,7 @@ import UserDetailedPage from '../../features/user/UserDetailed/UserDetailedPage.
 import SettingsDashboard from '../../features/user/Settings/SettingsDashboard.jsx';
 import TestComponent from '../../features/testarea/TestComponent.jsx';
 import ModalManager from '../../features/modals/ModalManager.jsx';
+import NotFound from './NotFound.jsx';
 
 class App extends Component {
   render() {
@@ -45,6 +46,7 @@ class App extends Component {
                     component={UserIsAuthenticated(EventForm)}
                   />
                   <Route path="/test" component={TestComponent} />
+                  <Route component={NotFound} />
                 </Switch>
               </Container>
             </Fragment>
